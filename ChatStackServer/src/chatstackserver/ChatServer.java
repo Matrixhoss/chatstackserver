@@ -6,10 +6,13 @@
 package chatstackserver;
 
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,17 +20,23 @@ import java.util.logging.Logger;
 public class ChatServer {
     ServerSocket sc;
     boolean IsOpen=true;
-    
+    ArrayList<ClientThread> clients=new ArrayList<ClientThread>();
+    Database db;
     public ChatServer() {
         try {
+            db =new Database();
+            System.out.println("Group : "+db.getGroup("abdo"));
             sc=new ServerSocket(4520);
             while(IsOpen){
                 Socket s=sc.accept();
-                ClientThread client=new ClientThread(s);
-                client.run();
+                ClientThread cl=new ClientThread(s);
+                cl.start();
+                this.clients.add(cl);
             }
         } catch (IOException ex) {
             System.out.println(ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -42,7 +51,7 @@ public class ChatServer {
                 this.out=new DataOutputStream(s.getOutputStream());
                 this.in=new DataInputStream(s.getInputStream());
                 userName=new String(in.readUTF());
-                System.out.println(userName);
+                System.out.println(userName+" is Entered");
             } catch (IOException ex) {
                 Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -51,10 +60,10 @@ public class ChatServer {
             @Override
             public void run() {
                 try{
-                    System.out.println("Client accepted");
-//                    while(ThreadOpen){ 
-                        this.out.writeUTF("Hi Client");
-//                    }
+                    while(ThreadOpen){ 
+                        String m=new String(in.readUTF());
+                        this.SendToGroup(m);
+                    }
                     this.out.close();
                 }catch(IOException ex){
                     System.out.println(ex);
@@ -62,6 +71,13 @@ public class ChatServer {
                 
             }
             
+            public void SendToGroup(String m) throws IOException{
+                for (ClientThread client : clients) {
+                    
+                        client.out.writeUTF(m);
+                    
+                }
+            }
         } 
     
 }
