@@ -5,6 +5,7 @@
  */
 package chatstackserver;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,25 +17,32 @@ import java.util.logging.Logger;
 public class ChatServer {
     ServerSocket sc;
     boolean IsOpen=true;
+    
     public ChatServer() {
         try {
             sc=new ServerSocket(4520);
             while(IsOpen){
                 Socket s=sc.accept();
-                
-                
+                ClientThread client=new ClientThread(s);
+                client.run();
             }
         } catch (IOException ex) {
             System.out.println(ex);
         }
     }
-    class ClientThread implements Runnable{
-        boolean ThreadOpen=true;
-        DataOutputStream out;
-        
+    
+    
+    class ClientThread extends Thread{
+        private String userName;
+        private boolean ThreadOpen=true;
+        private DataOutputStream out;
+        private DataInputStream in;
         public ClientThread(Socket s) {
             try {
-                out=new DataOutputStream(s.getOutputStream());
+                this.out=new DataOutputStream(s.getOutputStream());
+                this.in=new DataInputStream(s.getInputStream());
+                userName=new String(in.readUTF());
+                System.out.println(userName);
             } catch (IOException ex) {
                 Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -44,15 +52,16 @@ public class ChatServer {
             public void run() {
                 try{
                     System.out.println("Client accepted");
-                    while(ThreadOpen){ 
-                        out.writeUTF("Hi Client");
-                    }
-                    out.close();
+//                    while(ThreadOpen){ 
+                        this.out.writeUTF("Hi Client");
+//                    }
+                    this.out.close();
                 }catch(IOException ex){
                     System.out.println(ex);
                 }
                 
             }
             
-        }    
+        } 
+    
 }
