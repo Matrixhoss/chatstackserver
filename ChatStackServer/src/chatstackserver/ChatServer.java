@@ -19,14 +19,14 @@ import java.util.logging.Logger;
 
 public class ChatServer {
     ServerSocket sc;
-    boolean IsOpen=true;
-    ArrayList<ClientThread> clients=new ArrayList<ClientThread>();
+    boolean IsOpen=true;//to know if server opened
+    ArrayList<ClientThread> clients=new ArrayList<ClientThread>();//array list of all clients
     Database db;
     public ChatServer() {
         try {
             db =new Database();
-            System.out.println("Group : "+db.getGroup("abdo"));
-            sc=new ServerSocket(4520);
+            sc=new ServerSocket(4520);//open the socket
+            //when accpet connection put the socket in new thread and save it in arraylist
             while(IsOpen){
                 Socket s=sc.accept();
                 ClientThread cl=new ClientThread(s);
@@ -35,8 +35,6 @@ public class ChatServer {
             }
         } catch (IOException ex) {
             System.out.println(ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     

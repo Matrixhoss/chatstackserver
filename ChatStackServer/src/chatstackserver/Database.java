@@ -39,6 +39,7 @@ public class Database {
             System.out.println("Username or email is arraly used");
         }
     }
+    
 
     public boolean checkUsername(String Username) throws SQLException {
         String name = "";
@@ -53,6 +54,16 @@ public class Database {
         }
 
         return true;
+
+    }
+    
+     public int getID(String Username) throws SQLException {
+        String id = "";
+        s = stmt.executeQuery("SELECT `id` FROM `Users` WHERE `username` LIKE '" +Username + "'");
+
+        while (s.next()) {
+            id = s.getString("id");
+        }return Integer.parseInt(id);
 
     }
 
@@ -104,13 +115,11 @@ public class Database {
         }
     }
     
-    public String getGroup(String Username) throws SQLException{
-        s = stmt.executeQuery("SELECT `Group` FROM `Users` WHERE `username` LIKE '" + Username + "'");
-        String Group="";
-        while (s.next()) {
-            Group = s.getString("Group");
-        }
-        return Group;
+    public String CheckServerIP() throws SQLException{
+        String IP = "N/A";
+        s = stmt.executeQuery("SELECT `username` FROM `Users` WHERE `username` LIKE '" + "'");
+        IP = s.getString("IP");
+        return IP;
     }
 
 }
