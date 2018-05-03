@@ -161,7 +161,8 @@ public class Database {
     }
     
     public void addIpServer(String ip) throws SQLException{
-        con.prepareStatement("INSERT INTO `Server` (`ip`, `online`) VALUES (`"+ip+"`, 1)").executeUpdate();
+        con.prepareStatement("DELETE FROM `Server` WHERE 1").executeUpdate();
+        con.prepareStatement("INSERT INTO `Server` (`ip`, `online`) VALUES (\""+ip+"\", 1)").executeUpdate();
     
     }
     

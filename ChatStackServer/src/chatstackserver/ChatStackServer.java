@@ -9,7 +9,9 @@ package chatstackserver;
 public class ChatStackServer {
 //asdasdasd
     public static void main(String[] args) {
+        
         ChatServer s=new ChatServer();
+        
     }
     
 }
