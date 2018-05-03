@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
@@ -18,14 +19,23 @@ import java.util.logging.Logger;
 
 
 public class ChatServer {
-    ServerSocket sc;
+    ServerSocket sc,CheckSocket;
+    Thread online;
     boolean IsOpen=true;//to know if server opened
     ArrayList<ClientThread> clients=new ArrayList<ClientThread>();//array list of all clients
     Database db;
+    InetAddress ip;
     public ChatServer() {
         try {
-            db =new Database();
+            db =new Database();      
             sc=new ServerSocket(4520);//open the socket
+            ip=InetAddress.getLocalHost();
+            System.out.println("ip: "+ip.getHostAddress()+" , HostName : "+ip.getHostName());
+//            db.addIpServer(ip.toString());
+            CheckSocket=new ServerSocket(5555);
+            
+            this.makeOnline();
+            
             //when accpet connection put the socket in new thread and save it in arraylist
             while(IsOpen){
                 Socket s=sc.accept();
@@ -38,6 +48,34 @@ public class ChatServer {
         }
     }
     
+    //make thread for tell client that server online 
+    public void makeOnline(){
+            online=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        DataInputStream in;
+                        DataOutputStream out;
+                        while(true){
+                            
+                            try {
+                                Socket s=CheckSocket.accept();
+                                in=new DataInputStream(s.getInputStream());
+                                out=new DataOutputStream(s.getOutputStream());
+                                String m=new String(in.readUTF());
+                                if(m.equals("online ?"))
+                                out.writeUTF("yes");
+                                in.close();
+                                out.close();
+                                CheckSocket.close();
+                            } catch (IOException ex) {
+                                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            
+                    }        
+                }
+            });
+            online.start();
+    }
     
     class ClientThread extends Thread{
         private String userName;

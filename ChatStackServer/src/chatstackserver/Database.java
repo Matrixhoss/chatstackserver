@@ -1,5 +1,9 @@
 package chatstackserver;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -117,9 +121,49 @@ public class Database {
     
     public String CheckServerIP() throws SQLException{
         String IP = "N/A";
-        s = stmt.executeQuery("SELECT `username` FROM `Users` WHERE `username` LIKE '" + "'");
+        s = stmt.executeQuery("SELECT `IP` FROM `Server` WHERE `online` LIKE '1'");
         IP = s.getString("IP");
+        boolean online = false;
+        try{
+        online = CheckIfOnline(IP);
+        }
+        catch(IOException ex){
+        System.out.println(ex);
+        }
+        if(IP.equals("") || !online)
+            return "0";
         return IP;
     }
-
+    
+    public String getGroup(String Username) throws SQLException{
+        s = stmt.executeQuery("SELECT `Group` FROM `Users` WHERE `username` LIKE '" + Username + "'");
+        String Group="";
+        while (s.next()) {
+            Group = s.getString("Group");
+        }
+        return Group;
+    }
+    
+    public boolean CheckIfOnline(String IP) throws IOException {
+        
+        Socket s=new Socket(IP,5555);
+            DataInputStream in=new DataInputStream(s.getInputStream());
+            DataOutputStream out=new DataOutputStream(s.getOutputStream());
+            out.writeUTF("online ?");
+            String response=new String(in.readUTF());
+            in.close();
+            out.close();
+            s.close();
+            if(response.equals("yes online"))
+                return true;
+            else 
+                return false;
+    }
+    
+    public void addIpServer(String ip) throws SQLException{
+        con.prepareStatement("INSERT INTO `Server` (`ip`, `online`) VALUES (`"+ip+"`, 1)").executeUpdate();
+    
+    }
+    
 }
+
