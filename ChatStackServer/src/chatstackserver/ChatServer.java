@@ -91,7 +91,7 @@ public class ChatServer {
                                 if(m.equals("online ?")){
                                     out.writeUTF("yes online");
                                     String timeStamp = new SimpleDateFormat("[dd/MM/yyyy-HH:mm:ss]").format(Calendar.getInstance().getTime());
-                                    System.out.println(timeStamp+" Client from "+s.getLocalSocketAddress()+" have checked if server is online.");
+                                    System.out.println(timeStamp+" Client from "+s.getInetAddress()+" have checked if server is online.");
                                 }in.close();
                                 out.close();
                             } catch (IOException ex) {
