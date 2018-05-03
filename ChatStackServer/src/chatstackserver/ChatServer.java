@@ -62,11 +62,11 @@ public class ChatServer {
                                 in=new DataInputStream(s.getInputStream());
                                 out=new DataOutputStream(s.getOutputStream());
                                 String m=new String(in.readUTF());
+                                
                                 if(m.equals("online ?"))
-                                out.writeUTF("yes");
+                                    out.writeUTF("yes online");
                                 in.close();
                                 out.close();
-                                CheckSocket.close();
                             } catch (IOException ex) {
                                 Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
                             }
