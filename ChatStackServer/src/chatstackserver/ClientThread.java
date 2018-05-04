@@ -33,6 +33,8 @@ public class ClientThread extends Thread {
             this.s = s;
             this.out = new ObjectOutputStream(s.getOutputStream());
             this.in = new ObjectInputStream(s.getInputStream());
+            this.SendToGroup(new chatStackProtocol(1,"server",""));
+            
         } catch (IOException ex) {
             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -41,9 +43,12 @@ public class ClientThread extends Thread {
     @Override
     public void run() {
         try {
+            //recive any protcol
             while (ThreadOpen) {
                 p=(chatStackProtocol)in.readObject();
-                System.out.println("ID : "+p.getId()+"From User : "+p.getUser());
+                System.out.println("ID : "+p.getId()+"From User : "+p.getUser()+"message : "+p.getMessage());
+                int id=p.getId();
+                    
             }
             this.out.close();
         } catch (ClassNotFoundException ex) {
