@@ -166,5 +166,8 @@ public class Database {
     
     }
     
+    public void closeServer() throws SQLException{
+        con.prepareStatement("DELETE FROM `Server` WHERE 1").executeUpdate();
+    }
 }
 

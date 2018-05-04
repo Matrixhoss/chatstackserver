@@ -42,7 +42,7 @@ public class ChatServer {
             CheckSocket=new ServerSocket(55555);
             db.addIpServer(Ip);
             this.makeOnline();
-            
+            this.whenClosed();
             //when accpet connection put the socket in new thread and save it in arraylist
             while(IsOpen){
                 Socket s=sc.accept();
@@ -55,6 +55,28 @@ public class ChatServer {
         } catch (SQLException ex) {
             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    //when terminate the program
+    public void whenClosed(){
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for(ClientThread client:clients){
+                        client.closeConnection();
+                        client.stop();
+                    }
+                    sc.close();
+                    db.closeServer();
+                    System.out.println("Server closed");
+                } catch (IOException ex) {
+                    Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (SQLException ex) {
+                    Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }));
+        System.out.println("Server closed");
     }
     
     //get public ip for your server
@@ -110,9 +132,11 @@ public class ChatServer {
         private boolean ThreadOpen=true;
         private DataOutputStream out;
         private DataInputStream in;
+        private Socket s;
         
         public ClientThread(Socket s) {
             try {
+                this.s=s;
                 this.out=new DataOutputStream(s.getOutputStream());
                 this.in=new DataInputStream(s.getInputStream());
                 userName=new String(in.readUTF());
@@ -143,6 +167,19 @@ public class ChatServer {
                     
                 }
             }
+            
+            public void closeConnection(){
+            try {
+                this.in.close();
+                this.out.close();
+                this.s.close();
+                
+            } catch (IOException ex) {
+                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            }
+            
         } 
+    
     
 }
