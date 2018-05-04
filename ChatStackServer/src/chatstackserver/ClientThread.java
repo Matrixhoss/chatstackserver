@@ -14,6 +14,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import protocol.chatStackProtocol;
+
 /**
  *
  * @author Hassan
@@ -27,14 +28,14 @@ public class ClientThread extends Thread {
     private ObjectOutputStream out;
     private Socket s;
     private chatStackProtocol p;
-    
+
     public ClientThread(Socket s) {
         try {
             this.s = s;
             this.out = new ObjectOutputStream(s.getOutputStream());
             this.in = new ObjectInputStream(s.getInputStream());
-            this.SendToGroup(new chatStackProtocol(1,"server",""));
-            
+            this.SendToGroup(new chatStackProtocol(1, "server", ""));
+
         } catch (IOException ex) {
             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -45,10 +46,18 @@ public class ClientThread extends Thread {
         try {
             //recive any protcol
             while (ThreadOpen) {
-                p=(chatStackProtocol)in.readObject();
-                System.out.println("ID : "+p.getId()+"From User : "+p.getUser()+"message : "+p.getMessage());
-                int id=p.getId();
-                    
+                p = (chatStackProtocol) in.readObject();
+                System.out.println("ID : " + p.getId() + "From User : " + p.getUser() + "message : " + p.getMessage());
+                int id = p.getId();
+                if (id == 0) {
+                    this.SendToGroup(new chatStackProtocol(1, "server", ""));
+                    this.closeConnection();
+                    ChatServer.clients.remove(this);
+                    this.stop();
+                }
+                if (id == 2) {
+                    this.SendToGroup(new chatStackProtocol(2, "server", ""));
+                }
             }
             this.out.close();
         } catch (ClassNotFoundException ex) {
@@ -58,11 +67,12 @@ public class ClientThread extends Thread {
         }
 
     }
-    
+
     public void SendToGroup(chatStackProtocol p) throws IOException {
         for (ClientThread client : ChatServer.clients) {
-            if(!client.equals(this))
+            if (!client.equals(this)) {
                 client.out.writeObject(p);
+            }
 
         }
     }
