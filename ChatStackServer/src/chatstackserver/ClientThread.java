@@ -13,7 +13,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import protocol.chatStackProtocol;
 /**
  *
  * @author Hassan
@@ -26,14 +26,13 @@ public class ClientThread extends Thread {
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Socket s;
+    private chatStackProtocol p;
     
     public ClientThread(Socket s) {
         try {
             this.s = s;
             this.out = new ObjectOutputStream(s.getOutputStream());
             this.in = new ObjectInputStream(s.getInputStream());
-            
-            System.out.println(userName + " is Entered");
         } catch (IOException ex) {
             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -43,20 +42,22 @@ public class ClientThread extends Thread {
     public void run() {
         try {
             while (ThreadOpen) {
-                String m = new String(in.readUTF());
-                this.SendToGroup(m);
+                p=(chatStackProtocol)in.readObject();
+                System.out.println("ID : "+p.getId()+"From User : "+p.getUser());
             }
             this.out.close();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            System.out.println(ex);
+            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
-
-    public void SendToGroup(String m) throws IOException {
+    
+    public void SendToGroup(chatStackProtocol p) throws IOException {
         for (ClientThread client : ChatServer.clients) {
-
-            client.out.writeUTF(m);
+            if(!client.equals(this))
+                client.out.writeObject(p);
 
         }
     }
