@@ -8,9 +8,12 @@ package chatstackserver;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 /**
  *
  * @author Hassan
@@ -20,16 +23,16 @@ public class ClientThread extends Thread {
 
     private String userName;
     private boolean ThreadOpen = true;
-    private DataOutputStream out;
-    private DataInputStream in;
+    private ObjectInputStream in;
+    private ObjectOutputStream out;
     private Socket s;
-
+    
     public ClientThread(Socket s) {
         try {
             this.s = s;
-            this.out = new DataOutputStream(s.getOutputStream());
-            this.in = new DataInputStream(s.getInputStream());
-            userName = new String(in.readUTF());
+            this.out = new ObjectOutputStream(s.getOutputStream());
+            this.in = new ObjectInputStream(s.getInputStream());
+            
             System.out.println(userName + " is Entered");
         } catch (IOException ex) {
             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
