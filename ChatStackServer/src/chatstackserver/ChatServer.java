@@ -25,28 +25,29 @@ import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class ChatServer {
-    ServerSocket sc,CheckSocket;
+
+    ServerSocket sc, CheckSocket;
     Thread online;
-    boolean IsOpen=true;//to know if server opened
-    public static ArrayList<ClientThread> clients=new ArrayList<ClientThread>();//array list of all clients
+    boolean IsOpen = true;//to know if server opened
+    public static ArrayList<ClientThread> clients = new ArrayList<ClientThread>();//array list of all clients
     Database db;
     String Ip;
+
     public ChatServer() {
         try {
-            db =new Database();
-            sc=new ServerSocket(4520);//open the socket
-            Ip=this.getPublicIp();
-            System.out.println("IP : "+Ip);
-            CheckSocket=new ServerSocket(55555);
-            db.addIpServer(Ip);
+            db = new Database();
+            sc = new ServerSocket(4520);//open the socket
+            Ip = this.getPublicIp();
+            System.out.println("IP : " + Ip);
+            CheckSocket = new ServerSocket(55555);
+            db.addIpServer("127.0.0.1");
             this.makeOnline();
             this.whenClosed();
             //when accpet connection put the socket in new thread and save it in arraylist
-            while(IsOpen){
-                Socket s=sc.accept();
-                ClientThread cl=new ClientThread(s);
+            while (IsOpen) {
+                Socket s = sc.accept();
+                ClientThread cl = new ClientThread(s);
                 cl.start();
                 this.clients.add(cl);
             }
@@ -56,13 +57,14 @@ public class ChatServer {
             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     //when terminate the program
-    public void whenClosed(){
+    public void whenClosed() {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    for(ClientThread client:clients){
+                    for (ClientThread client : clients) {
                         client.closeConnection();
                         client.stop();
                     }
@@ -76,12 +78,11 @@ public class ChatServer {
                 }
             }
         }));
-        System.out.println("Server closed");
     }
-    
+
     //get public ip for your server
-    private String getPublicIp(){
-        String ip="";
+    private String getPublicIp() {
+        String ip = "";
         try {
             URL connection = new URL("http://checkip.amazonaws.com/");
             URLConnection con = connection.openConnection();
@@ -94,36 +95,37 @@ public class ChatServer {
         }
         return ip;
     }
-    
+
     //make thread for tell client that server online 
-    public void makeOnline(){
-            online=new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        DataInputStream in;
-                        DataOutputStream out;
-                        while(true){
-                            
-                            try {
-                                Socket s=CheckSocket.accept();
-                                in=new DataInputStream(s.getInputStream());
-                                out=new DataOutputStream(s.getOutputStream());
-                                String m=new String(in.readUTF());
-                                //client ask server if it online
-                                if(m.equals("online ?")){
-                                    out.writeUTF("yes online");
-                                    String timeStamp = new SimpleDateFormat("[dd/MM/yyyy-HH:mm:ss]").format(Calendar.getInstance().getTime());
-                                    System.out.println(timeStamp+" Client from "+s.getInetAddress()+" have checked if server is online.");
-                                }in.close();
-                                out.close();
-                            } catch (IOException ex) {
-                                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            
-                    }        
+    public void makeOnline() {
+        online = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DataInputStream in;
+                DataOutputStream out;
+                while (true) {
+
+                    try {
+                        Socket s = CheckSocket.accept();
+                        in = new DataInputStream(s.getInputStream());
+                        out = new DataOutputStream(s.getOutputStream());
+                        String m = new String(in.readUTF());
+                        //client ask server if it online
+                        if (m.equals("online ?")) {
+                            out.writeUTF("yes online");
+                            String timeStamp = new SimpleDateFormat("[dd/MM/yyyy-HH:mm:ss]").format(Calendar.getInstance().getTime());
+                            System.out.println(timeStamp + " Client from " + s.getInetAddress() + " have checked if server is online.");
+                        }
+                        in.close();
+                        out.close();
+                    } catch (IOException ex) {
+                        Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
                 }
-            });
-            online.start();
+            }
+        });
+        online.start();
     }
-    
+
 }
