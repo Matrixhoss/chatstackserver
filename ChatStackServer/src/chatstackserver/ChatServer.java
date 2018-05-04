@@ -30,7 +30,7 @@ public class ChatServer {
     ServerSocket sc,CheckSocket;
     Thread online;
     boolean IsOpen=true;//to know if server opened
-    ArrayList<ClientThread> clients=new ArrayList<ClientThread>();//array list of all clients
+    public static ArrayList<ClientThread> clients=new ArrayList<ClientThread>();//array list of all clients
     Database db;
     String Ip;
     public ChatServer() {
@@ -125,61 +125,5 @@ public class ChatServer {
             });
             online.start();
     }
-    
-    //thread which communicuate with server
-    class ClientThread extends Thread{
-        private String userName;
-        private boolean ThreadOpen=true;
-        private DataOutputStream out;
-        private DataInputStream in;
-        private Socket s;
-        
-        public ClientThread(Socket s) {
-            try {
-                this.s=s;
-                this.out=new DataOutputStream(s.getOutputStream());
-                this.in=new DataInputStream(s.getInputStream());
-                userName=new String(in.readUTF());
-                System.out.println(userName+" is Entered");
-            } catch (IOException ex) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-            
-            @Override
-            public void run() {
-                try{
-                    while(ThreadOpen){ 
-                        String m=new String(in.readUTF());
-                        this.SendToGroup(m);
-                    }
-                    this.out.close();
-                }catch(IOException ex){
-                    System.out.println(ex);
-                }
-                
-            }
-            
-            public void SendToGroup(String m) throws IOException{
-                for (ClientThread client : clients) {
-                    
-                        client.out.writeUTF(m);
-                    
-                }
-            }
-            
-            public void closeConnection(){
-            try {
-                this.in.close();
-                this.out.close();
-                this.s.close();
-                
-            } catch (IOException ex) {
-                Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            }
-            
-        } 
-    
     
 }
