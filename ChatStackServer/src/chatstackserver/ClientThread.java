@@ -58,6 +58,9 @@ public class ClientThread extends Thread {
                 if (id == 2) {
                     this.SendToGroup(new chatStackProtocol(2, "server", ""));
                 }
+                if (id == 4) {
+                   this.SendToGroup(new chatStackProtocol(4, "server", p.getMessage(),p.getGroup()));
+                }
             }
             this.out.close();
         } catch (ClassNotFoundException ex) {
@@ -76,6 +79,8 @@ public class ClientThread extends Thread {
 
         }
     }
+    
+ 
 
     public void closeConnection() {
         try {
