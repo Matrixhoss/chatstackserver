@@ -41,7 +41,7 @@ public class ChatServer {
             Ip = this.getPublicIp();
             System.out.println("IP : " + Ip);
             CheckSocket = new ServerSocket(55555);
-            db.addIpServer(Ip);
+//            db.addIpServer(Ip);
             this.makeOnline();
             this.whenClosed();
             //when accpet connection put the socket in new thread and save it in arraylist
@@ -53,8 +53,6 @@ public class ChatServer {
             }
         } catch (IOException ex) {
             System.out.println(ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

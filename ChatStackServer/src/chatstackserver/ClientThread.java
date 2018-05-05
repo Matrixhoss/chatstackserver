@@ -59,7 +59,7 @@ public class ClientThread extends Thread {
                     this.SendToGroup(new chatStackProtocol(2, "server", ""));
                 }
                 if (id == 4) {
-                   this.SendToGroup(new chatStackProtocol(4, "server", p.getMessage(),p.getGroup()));
+                   this.SendToGroup(new chatStackProtocol(4,p.getUser() , p.getMessage(),p.getGroup()));
                 }
             }
             this.out.close();
