@@ -70,6 +70,10 @@ public class ClientThread extends Thread {
                     System.out.println("[Message =>" + p.getGroup() + " ] User: " + p.getUser() + " Send :" + p.getMessage());
                     this.SendToGroup(new chatStackProtocol(4, p.getUser(), p.getMessage(), p.getGroup()));
                 }
+                if(id==5){
+                    System.out.println("User : "+p.getMessage()+" is kicked");
+                    this.SendToGroup(new chatStackProtocol(5, p.getUser(), p.getMessage(), p.getGroup()));
+                }
             }
             this.out.close();
         } catch (ClassNotFoundException ex) {
