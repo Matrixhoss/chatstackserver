@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -169,5 +170,17 @@ public class Database {
     public void closeServer() throws SQLException{
         con.prepareStatement("DELETE FROM `Server` WHERE 1").executeUpdate();
     }
+    
+    public ArrayList<String> getUsersIpInGroup(String group) throws SQLException {
+
+        ArrayList<String> ips = new ArrayList<String>();
+        s = stmt.executeQuery("SELECT `ip` FROM `Users` WHERE `group` like '"+group+"'");
+        while (s.next()) {
+            ips.add(s.getString("username"));
+        }
+        return ips;
+
+    }
+    
 }
 

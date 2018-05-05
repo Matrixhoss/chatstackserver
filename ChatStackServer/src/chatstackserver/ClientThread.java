@@ -5,12 +5,15 @@
  */
 package chatstackserver;
 
+import static chatstackserver.ChatServer.db;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import protocol.chatStackProtocol;
@@ -47,19 +50,25 @@ public class ClientThread extends Thread {
             //recive any protcol
             while (ThreadOpen) {
                 p = (chatStackProtocol) in.readObject();
-                System.out.println("ID : " + p.getId() + " From User : " + p.getUser() + " message : " + p.getMessage()+" Group : "+p.getGroup());
                 int id = p.getId();
                 if (id == 0) {
+                    System.out.println("User : " + p.getUser() + " is DisConnected ");
                     this.SendToGroup(new chatStackProtocol(1, "server", ""));
                     this.closeConnection();
                     ChatServer.clients.remove(this);
                     this.stop();
                 }
                 if (id == 2) {
+                    System.out.println("New Group is Added ");
                     this.SendToGroup(new chatStackProtocol(2, "server", ""));
                 }
+                if (id == 3) {
+                    System.out.println("New Member is entered in  " + p.getGroup());
+                    this.SendToGroup(new chatStackProtocol(3, "server", ""));
+                }
                 if (id == 4) {
-                   this.SendToGroup(new chatStackProtocol(4,p.getUser() , p.getMessage(),p.getGroup()));
+                    System.out.println("[Message =>" + p.getGroup() + " ] User: " + p.getUser() + " Send :" + p.getMessage());
+                    this.SendToGroup(new chatStackProtocol(4, p.getUser(), p.getMessage(), p.getGroup()));
                 }
             }
             this.out.close();
@@ -76,11 +85,24 @@ public class ClientThread extends Thread {
             if (!client.equals(this)) {
                 client.out.writeObject(p);
             }
-
         }
     }
-    
- 
+
+    public void SendMessageToGroup(chatStackProtocol p) throws IOException {
+        try {
+            ArrayList<String> ips = ChatServer.db.getUsersIpInGroup(p.getGroup());
+            for (ClientThread client : ChatServer.clients) {
+                for (String ip : ips) {
+                    ip = "/" + ip;
+                    if (!client.equals(this) && ip.equals(client.s.getInetAddress())) {
+                        client.out.writeObject(p);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println("Send Message => " + ex.getMessage());
+        }
+    }
 
     public void closeConnection() {
         try {

@@ -31,7 +31,7 @@ public class ChatServer {
     Thread online;
     boolean IsOpen = true;//to know if server opened
     public static ArrayList<ClientThread> clients = new ArrayList<ClientThread>();//array list of all clients
-    Database db;
+    public static Database db;
     String Ip;
 
     public ChatServer() {
