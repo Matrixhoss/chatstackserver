@@ -41,7 +41,7 @@ public class ChatServer {
             Ip = this.getPublicIp();
             System.out.println("IP : " + Ip);
             CheckSocket = new ServerSocket(55555);
-            db.addIpServer("127.0.0.1");
+            db.addIpServer(Ip);
             this.makeOnline();
             this.whenClosed();
             //when accpet connection put the socket in new thread and save it in arraylist
