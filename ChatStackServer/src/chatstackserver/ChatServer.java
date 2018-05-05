@@ -41,18 +41,22 @@ public class ChatServer {
             Ip = this.getPublicIp();
             System.out.println("IP : " + Ip);
             CheckSocket = new ServerSocket(55555);
-//            db.addIpServer(Ip);
+            db.addIpServer(Ip);
             this.makeOnline();
-            this.whenClosed();
+//            this.whenClosed();
             //when accpet connection put the socket in new thread and save it in arraylist
             while (IsOpen) {
                 Socket s = sc.accept();
                 ClientThread cl = new ClientThread(s);
                 cl.start();
+                String timeStamp = new SimpleDateFormat("[dd/MM/yyyy-HH:mm:ss]").format(Calendar.getInstance().getTime());
+                System.out.println(timeStamp + " Client from " + s.getInetAddress() + " have entered if server is online.");
                 this.clients.add(cl);
             }
         } catch (IOException ex) {
             System.out.println(ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

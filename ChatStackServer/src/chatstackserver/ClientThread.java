@@ -47,7 +47,7 @@ public class ClientThread extends Thread {
             //recive any protcol
             while (ThreadOpen) {
                 p = (chatStackProtocol) in.readObject();
-                System.out.println("ID : " + p.getId() + "From User : " + p.getUser() + "message : " + p.getMessage());
+                System.out.println("ID : " + p.getId() + " From User : " + p.getUser() + " message : " + p.getMessage()+" Group : "+p.getGroup());
                 int id = p.getId();
                 if (id == 0) {
                     this.SendToGroup(new chatStackProtocol(1, "server", ""));
